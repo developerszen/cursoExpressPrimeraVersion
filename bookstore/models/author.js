@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
       as: 'userEditor',
       foreignKey: 'updated_by'
     });
+    author.belongsToMany(models.book, {
+      through: 'author_book',
+      foreignKey: 'fk_author',
+      otherKey: 'fk_book'
+    });
   };
   return author;
 };
