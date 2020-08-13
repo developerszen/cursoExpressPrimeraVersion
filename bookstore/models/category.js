@@ -1,4 +1,6 @@
 'use strict';
+const SequelizeSlugify = require('sequelize-slugify')
+
 module.exports = (sequelize, DataTypes) => {
   const category = sequelize.define('category', {
     id: {
@@ -45,7 +47,9 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
     slug: DataTypes.STRING
-  }, {});
+  }, {
+    timestamps:false
+  });
 
   SequelizeSlugify.slugifyModel(category, {
     source: ['name']

@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: 'updated_at'
   });
 
-  SequelizeSlugify.slugifyModel(author, {
+  SequelizeSlugify.slugifyModel(book, {
     source: ['title']
   })
 

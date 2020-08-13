@@ -32,11 +32,11 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   author.associate = function(models) {
-    author.belongsTo(models.users, {
+    author.belongsTo(models.user, {
       as: 'userCreator',
       foreignKey: 'created_by'
     });
-    author.belongsTo(models.users, {
+    author.belongsTo(models.user, {
       as: 'userEditor',
       foreignKey: 'updated_by'
     });

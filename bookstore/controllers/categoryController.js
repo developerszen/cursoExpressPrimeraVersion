@@ -1,13 +1,13 @@
-const Author = require('../models').author;
+const Category = require('../models').category;
 const User = require('../models').user;
 
 module.exports = {
     index(req, res) {
-      return Author.findAll({
+      return Category.findAll({
           where: {
               is_deleted: false
           },
-          attributes: ['id', 'name', 'slug'],
+          attributes: ['id', 'name', 'description', 'slug'],
           include: [{
               model: User,
               as: 'userCreator',
@@ -20,7 +20,7 @@ module.exports = {
         },
         ]
       })
-        .then((authors) => res.status(200).send(authors))
+        .then((categories) => res.status(200).send(categories))
         .catch((error) => {
             res.status(500).send(error)
         });
@@ -28,38 +28,41 @@ module.exports = {
     store(req, res) {
         const body = req.body;
 
-        Author.create({
+        Category.create({
             name: body.name,
+            description: body.description,
             created_by: 1,
-            updated_by: 1
+            created_at: '2020/08/13',
+            updated_by: 1,
+            updated_at: '2020/08/13',
         })
-        .then((author) =>{
-            Author.findOne({
+        .then((category) =>{
+            Category.findOne({
                 where: {
-                    id: author.id
+                    id: category.id
                 },
-                attributes: ['id', 'name', 'slug'],
+                attributes: ['id', 'name', 'description', 'slug'],
                 include: [{
                     model: User,
                     as: 'userCreator',
-                    attributes: ['id', 'first_name']
+                    attributes: ['id', 'first_name', 'last_name', 'fullname']
                 },{
                     model: User,
                     as: 'userEditor',
-                    attributes: ['id', 'first_name']
+                    attributes: ['id', 'first_name', 'last_name', 'fullname']
                 },
             ]
             })
-                .then((author) => res.status(200).send(author))
+                .then((category) => res.status(200).send(category))
                 .catch((error) => res.status(400).send(error))             
         })
     },
     show(req, res) {
-        return Author.findOne({
+        return Category.findOne({
             where: {
                 id: req.params.id
             },
-            attributes: ['id', 'name', 'slug', 'created_at', 'updated_at'],
+            attributes: ['id', 'name', 'description', 'slug', 'created_at', 'updated_at'],
             include: [{
                 model: User,
                 as: 'userCreator',
@@ -70,34 +73,35 @@ module.exports = {
                 as: 'userEditor',
                 attributes: ['id', 'first_name','last_name','fullname']
             }]
-        }).then((author) => res.status(200).send(author))
+        }).then((category) => res.status(200).send(category))
         .catch((error) => res.status(400).send(error))
     },
     update(req, res) {
         const body = req.body;
-        return Author
+        return Category
             .findOne({
                 where: {
                     id: req.params.id
                 }
             })
-            .then(author => {
-                if(!author) {
+            .then(category => {
+                if(!category) {
                     return res.status(404).send({
-                        message: 'Author Not Found'
+                        message: 'Categoria Not Found'
                     });
                 }
 
-                return author
+                return category
                     .update({
-                        name: body.name
+                        name: body.name,
+                        description: body.description
                     })
-                    .then((author) =>{
-                        Author.findOne({
+                    .then((category) =>{
+                        Category.findOne({
                             where: {
-                                id: author.id
+                                id: category.id
                             },
-                            attributes: ['id', 'name', 'slug', 'created_at', 'updated_at'],
+                            attributes: ['id', 'name', 'description', 'slug', 'created_at', 'updated_at'],
                             include: [{
                                 model: User,
                                 as: 'userCreator',
@@ -109,7 +113,7 @@ module.exports = {
                                 attributes: ['id', 'first_name', 'last_name', 'fullname'],
                             }]
                         })
-                        .then(author => res.status(200).send(author))
+                        .then(category => res.status(200).send(category))
                         .catch(error=> res.status(400).send(error))
                     })
                     .catch(error => res.status(400).send(error))
@@ -117,21 +121,21 @@ module.exports = {
             .catch(error => res.status(400).send(error))
     },
     delete(req, res) {
-        return Author.findOne({
+        return Category.findOne({
             where: { id: req.params.id }
         })
-        .then(author => {
-            if(!author) {
+        .then(category => {
+            if(!category) {
                 return res.status(404).send({
-                    message: 'Author Not Found'
+                    message: 'Category Not Found'
                 });
             }
 
-            return author
+            return category
                 .update({
                     is_deleted: true
                 })
-                .then(author => res.status(204).send([]))
+                .then(category => res.status(204).send([]))
                 .catch(error => res.status(400).send(error))
         })
         .catch(error => res.status(400).send(error))
