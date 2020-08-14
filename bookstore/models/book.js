@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   const book = sequelize.define('book', {
     id: {
       primaryKey:true,
-      autoincrement:true,
+      autoIncrement:true,
       type: DataTypes.INTEGER
     },
     isbn: DataTypes.STRING(20),
@@ -64,6 +64,29 @@ module.exports = (sequelize, DataTypes) => {
     source: ['title']
   })
 
+  book.searchBook = function(search, limit, offset) {
+    var queryBase = `select * from books where is_deleted=false and title like '%${search}%'`
+
+    var query = `${queryBase}
+      limit ${limit} offset ${offset}`
+
+    var queryCount = `select count(*) total from (${queryBase}) v`
+
+    return sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
+      .then(data => {
+        return sequelize.query(queryCount, { type: sequelize.QueryTypes.SELECT })
+          .then(count => {
+            return { data: data, count: count}
+          })
+          .catch(error => {
+            return error;
+          })
+      })
+      .catch(error => {
+        return error;
+      })
+  }
+
   book.associate = function(models) {
     book.belongsTo(models.category, {
       foreignKey: 'fk_category'
@@ -76,7 +99,7 @@ module.exports = (sequelize, DataTypes) => {
       as: 'userEditor',
       foreignKey: 'updated_by'
     });
-    book.belongsToMany(models.user, {
+    book.belongsToMany(models.author, {
       through: 'author_book',
       foreignKey: 'fk_book',
       otherKey: 'fk_author'
